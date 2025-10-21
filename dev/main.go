@@ -67,13 +67,13 @@ func (h *WindowHandle) drawWindow() {
 }
 
 func (h *WindowHandle) drawContent() {
-	arrContent := strings.Split(h.Content, "\n")
-	for i := 0; i < h.Height && i < len(arrContent); i++ {
-		limit := len(arrContent[i])
+	lines := strings.Split(h.Content, "\n")
+	for i := 0; i < h.Height && i < len(lines); i++ {
+		limit := len(lines[i])
 		if limit > h.Width {
 			limit = h.Width
 		}
-		drawText(h.X, h.Y+i+1, arrContent[i][0:limit], h.Fg, h.Bg)
+		drawText(h.X, h.Y+i+1, lines[i][0:limit], h.Fg, h.Bg)
 	}
 }
 
