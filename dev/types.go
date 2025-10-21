@@ -14,7 +14,9 @@ type WindowHandle struct {
 }
 
 type Screen struct {
-	Windows  []*WindowHandle
-	Debug    bool
-	Dragging bool
+	Windows    []*WindowHandle
+	Focus      *WindowHandle
+	Focusindex int
+	Debug      bool
+	Dragging   bool
 }

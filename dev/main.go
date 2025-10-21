@@ -27,9 +27,11 @@ func main() {
 	termbox.SetInputMode(termbox.InputEsc | termbox.InputAlt | termbox.InputMouse)
 
 	state := &Screen{
-		Windows:  make([]*WindowHandle, 0),
-		Debug:    false,
-		Dragging: false,
+		Windows:    make([]*WindowHandle, 0),
+		Focus:      nil,
+		Focusindex: -1,
+		Debug:      false,
+		Dragging:   false,
 	}
 
 	state.Windows = append(state.Windows, &WindowHandle{
@@ -43,6 +45,9 @@ func main() {
 		Bg:        termbox.ColorWhite,
 		Content:   "",
 	})
+
+	state.Focus = state.Windows[0]
+	state.Focusindex = 0
 
 	for {
 		//window test
@@ -70,11 +75,13 @@ func main() {
 					Height:    7,
 					Title:     "test window",
 					TrimTitle: "trimed",
-					Fg:        termbox.ColorRed,
+					Fg:        termbox.RGBToAttribute(255, 255, 0),
 					Bg:        termbox.ColorWhite,
 					Content:   "Hello, Golang!\n;)",
 				}
 
+				state.Focus = newH
+				state.Focusindex = len(state.Windows)
 				state.Windows = append(state.Windows, newH)
 			} else if ev.Key == termbox.KeyTab {
 				state.Debug = !state.Debug
@@ -82,10 +89,10 @@ func main() {
 
 		case termbox.EventMouse:
 			var toclose *WindowHandle
-			for _, w := range state.Windows {
+			for i, w := range state.Windows {
 				switch ev.Key {
 				case termbox.MouseLeft:
-					if w.IsExitButtonArea(ev.MouseX, ev.MouseY) && !w.isDrag && !state.Dragging {
+					if w.IsExitButtonArea(ev.MouseX, ev.MouseY) && !w.isDrag && !state.Dragging && i == state.Focusindex {
 						toclose = w
 					}
 
