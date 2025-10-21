@@ -18,6 +18,11 @@ func InitLogrus() {
 
 func main() {
 	InitLogrus()
+	/* debug area */
+	// logrus.Info(termbox.RGBToAttribute(0, 0, 255))
+	// logrus.Info(termbox.ColorBlue)
+	// return
+	// end area */
 	err := termbox.Init()
 	if err != nil {
 		logrus.Fatal(err)
@@ -25,6 +30,7 @@ func main() {
 	defer termbox.Close()
 
 	termbox.SetInputMode(termbox.InputEsc | termbox.InputAlt | termbox.InputMouse)
+	termbox.SetOutputMode(termbox.OutputRGB | termbox.Output256)
 
 	state := &Screen{
 		Windows:    make([]*WindowHandle, 0),
@@ -75,8 +81,8 @@ func main() {
 					Height:    7,
 					Title:     "test window",
 					TrimTitle: "trimed",
-					Fg:        termbox.RGBToAttribute(255, 255, 0),
-					Bg:        termbox.ColorWhite,
+					Fg:        termbox.RGBToAttribute(0, 100, 0),
+					Bg:        termbox.RGBToAttribute(100, 0, 0),
 					Content:   "Hello, Golang!\n;)",
 				}
 

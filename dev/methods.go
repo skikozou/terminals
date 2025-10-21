@@ -24,10 +24,7 @@ func (h *WindowHandle) drawWindow() {
 func (h *WindowHandle) drawContent() {
 	lines := strings.Split(h.Content, "\n")
 	for i := 0; i < h.Height && i < len(lines); i++ {
-		limit := len(lines[i])
-		if limit > h.Width {
-			limit = h.Width
-		}
+		limit := min(len(lines[i]), h.Width)
 		drawText(h.X, h.Y+i+1, lines[i][0:limit], h.Fg, h.Bg)
 	}
 }
