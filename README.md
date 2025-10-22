@@ -18,3 +18,8 @@ type WindowHandle struct {
 	Content             string
 }
 ```
+
+# Task
+- focus system
+- arrow control
+- min/normal size control

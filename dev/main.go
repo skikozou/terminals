@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 
 	"github.com/nsf/termbox-go"
 	"github.com/sirupsen/logrus"
@@ -14,6 +15,10 @@ func InitLogrus() {
 		DisableLevelTruncation: true,
 		PadLevelText:           true,
 	})
+}
+
+func randomColor() int {
+	return rand.Intn(16)
 }
 
 func main() {
@@ -30,7 +35,7 @@ func main() {
 	defer termbox.Close()
 
 	termbox.SetInputMode(termbox.InputEsc | termbox.InputAlt | termbox.InputMouse)
-	termbox.SetOutputMode(termbox.OutputRGB | termbox.Output256)
+	//termbox.SetOutputMode(termbox.OutputRGB)
 
 	state := &Screen{
 		Windows:    make([]*WindowHandle, 0),
@@ -47,8 +52,8 @@ func main() {
 		Height:    7,
 		Title:     "test window",
 		TrimTitle: "trimed",
-		Fg:        termbox.ColorRed,
-		Bg:        termbox.ColorWhite,
+		Fg:        termbox.ColorLightGray,
+		Bg:        termbox.ColorLightGray,
 		Content:   "",
 	})
 
@@ -58,12 +63,12 @@ func main() {
 	for {
 		//window test
 		termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
-		for _, w := range state.Windows {
-			w.drawWindow()
+		for i, w := range state.Windows {
+			w.drawWindow(i == state.Focusindex)
 		}
 
 		if state.Debug {
-			drawText(0, 0, fmt.Sprintf("Windows: %d ", len(state.Windows)), termbox.ColorLightGray, termbox.ColorDarkGray)
+			drawText(0, 0, fmt.Sprintf("Windows: %d ", len(state.Windows)), termbox.ColorWhite, termbox.ColorBlack)
 		}
 
 		termbox.Flush()
@@ -81,8 +86,8 @@ func main() {
 					Height:    7,
 					Title:     "test window",
 					TrimTitle: "trimed",
-					Fg:        termbox.RGBToAttribute(0, 100, 0),
-					Bg:        termbox.RGBToAttribute(100, 0, 0),
+					Fg:        termbox.Attribute(randomColor()),
+					Bg:        termbox.Attribute(randomColor()),
 					Content:   "Hello, Golang!\n;)",
 				}
 
@@ -98,8 +103,12 @@ func main() {
 			for i, w := range state.Windows {
 				switch ev.Key {
 				case termbox.MouseLeft:
-					if w.IsExitButtonArea(ev.MouseX, ev.MouseY) && !w.isDrag && !state.Dragging && i == state.Focusindex {
+					if w.isExitButtonArea(ev.MouseX, ev.MouseY) && !w.isDrag && !state.Dragging && i == state.Focusindex {
 						toclose = w
+					}
+
+					if i != state.Focusindex {
+
 					}
 
 					if w.isDrag {
@@ -107,7 +116,7 @@ func main() {
 						w.Y = ev.MouseY
 					}
 
-					if w.IsTitlebarArea(ev.MouseX, ev.MouseY) && !state.Dragging {
+					if w.isTitlebarArea(ev.MouseX, ev.MouseY) && !state.Dragging {
 						w.isDrag = true
 						state.Dragging = true
 						w.DragPosX = w.X - ev.MouseX
@@ -120,7 +129,7 @@ func main() {
 				}
 			}
 			if toclose != nil {
-				toclose.closeWindow(&state.Windows)
+				state.closeWindow(toclose)
 			}
 		}
 	}

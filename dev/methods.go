@@ -1,8 +1,16 @@
 package main
 
-import "strings"
+import (
+	"strings"
 
-func (h *WindowHandle) drawWindow() {
+	"github.com/nsf/termbox-go"
+)
+
+func (h *WindowHandle) drawWindow(isfocus bool) {
+	f, b := h.Fg, h.Bg
+	if isfocus {
+		f, b = termbox.ColorBlack, termbox.ColorWhite
+	}
 	// draw box
 	drawBox(h.X, h.Y+1, h.Width, h.Height, h.Fg, h.Bg)
 	// write titlebar
@@ -16,7 +24,7 @@ func (h *WindowHandle) drawWindow() {
 		padding = strings.Repeat(" ", paddinglen)
 	}
 	titlebar := h.TrimTitle + padding + " x "
-	drawText(h.X, h.Y, titlebar, h.Bg, h.Fg)
+	drawText(h.X, h.Y, titlebar, b, f)
 	// write content
 	h.drawContent()
 }
@@ -29,23 +37,40 @@ func (h *WindowHandle) drawContent() {
 	}
 }
 
-func (h *WindowHandle) IsTitlebarArea(posX, posY int) bool {
+func (h *WindowHandle) isTitlebarArea(posX, posY int) bool {
 	return h.X <= posX && posX < h.X+h.Width-3 && h.Y == posY
 }
 
-func (h *WindowHandle) IsExitButtonArea(posX, posY int) bool {
+func (h *WindowHandle) isExitButtonArea(posX, posY int) bool {
 	return h.X+h.Width-3 <= posX && posX < h.X+h.Width && posY == h.Y
 }
 
-func (h *WindowHandle) closeWindow(Windows *[]*WindowHandle) {
-	ws := *Windows
+func (s *Screen) closeWindow(window *WindowHandle) {
+	if len(s.Windows) != 1 {
+		s.Focus = s.Windows[len(s.Windows)-2]
+	} else {
+		s.Focus = nil
+	}
+	s.Focusindex--
+	ws := s.Windows
 	for i, w := range ws {
-		if w == h {
+		if w == window {
 			copy(ws[i:], ws[i+1:])
 			ws[len(ws)-1] = nil
 			ws = ws[:len(ws)-1]
 			break
 		}
 	}
-	*Windows = ws
+	s.Windows = ws
 }
+
+func (s *Screen) windowFocus(window *WindowHandle) {
+
+}
+
+// 1 2 3 4 5 want 3
+// 1 2 4 5 3
+
+// 1 2 3 4 5 3
+// 1 2 |3| 4 5 3
+// 1 2 4 5 3
