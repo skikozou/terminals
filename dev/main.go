@@ -107,8 +107,8 @@ func main() {
 						toclose = w
 					}
 
-					if i != state.Focusindex {
-
+					if i != state.Focusindex && w.onWindow(ev.MouseX, ev.MouseY) {
+						state.windowFocus(w)
 					}
 
 					if w.isDrag {

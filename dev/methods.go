@@ -45,6 +45,10 @@ func (h *WindowHandle) isExitButtonArea(posX, posY int) bool {
 	return h.X+h.Width-3 <= posX && posX < h.X+h.Width && posY == h.Y
 }
 
+func (h *WindowHandle) onWindow(posX, PosY int) bool {
+
+}
+
 func (s *Screen) closeWindow(window *WindowHandle) {
 	if len(s.Windows) != 1 {
 		s.Focus = s.Windows[len(s.Windows)-2]
