@@ -68,7 +68,7 @@ func main() {
 		}
 
 		if state.Debug {
-			drawText(0, 0, fmt.Sprintf("Windows: %d ", len(state.Windows)), termbox.ColorWhite, termbox.ColorBlack)
+			drawText(0, 0, fmt.Sprintf("Windows: %d, Focus: %d", len(state.Windows), state.Focusindex), termbox.ColorWhite, termbox.ColorBlack)
 		}
 
 		termbox.Flush()
@@ -76,9 +76,15 @@ func main() {
 		ev := termbox.PollEvent()
 		switch ev.Type {
 		case termbox.EventKey:
-			if ev.Key == termbox.KeyEsc {
+			switch ev.Key {
+			case termbox.KeyEsc:
 				return
-			} else if ev.Ch == 'n' {
+			case termbox.KeyTab:
+				state.Debug = !state.Debug
+			}
+
+			switch ev.Ch {
+			case 'n':
 				newH := &WindowHandle{
 					X:         0,
 					Y:         0,
@@ -94,21 +100,26 @@ func main() {
 				state.Focus = newH
 				state.Focusindex = len(state.Windows)
 				state.Windows = append(state.Windows, newH)
-			} else if ev.Key == termbox.KeyTab {
-				state.Debug = !state.Debug
 			}
 
 		case termbox.EventMouse:
-			var toclose *WindowHandle
+			var (
+				toclose = -1
+				tofocus = -1
+			)
 			for i, w := range state.Windows {
 				switch ev.Key {
 				case termbox.MouseLeft:
 					if w.isExitButtonArea(ev.MouseX, ev.MouseY) && !w.isDrag && !state.Dragging && i == state.Focusindex {
-						toclose = w
+						toclose = i
 					}
 
 					if i != state.Focusindex && w.onWindow(ev.MouseX, ev.MouseY) {
+<<<<<<< HEAD
 						state.windowFocus(w)
+=======
+						tofocus = i
+>>>>>>> a21cbb1 (uh h)
 					}
 
 					if w.isDrag {
@@ -128,8 +139,12 @@ func main() {
 					state.Dragging = false
 				}
 			}
-			if toclose != nil {
+			if toclose != -1 {
 				state.closeWindow(toclose)
+			}
+
+			if tofocus != -1 {
+				state.focusWindow(tofocus)
 			}
 		}
 	}
