@@ -115,11 +115,7 @@ func main() {
 					}
 
 					if i != state.Focusindex && w.onWindow(ev.MouseX, ev.MouseY) {
-<<<<<<< HEAD
-						state.windowFocus(w)
-=======
 						tofocus = i
->>>>>>> a21cbb1 (uh h)
 					}
 
 					if w.isDrag {
