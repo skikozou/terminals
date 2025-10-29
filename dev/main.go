@@ -38,11 +38,9 @@ func main() {
 	//termbox.SetOutputMode(termbox.OutputRGB)
 
 	state := &Screen{
-		Windows:    make([]*WindowHandle, 0),
-		Focus:      nil,
-		Focusindex: -1,
-		Debug:      false,
-		Dragging:   false,
+		Windows:  make([]*WindowHandle, 0),
+		Debug:    false,
+		Dragging: false,
 	}
 
 	state.Windows = append(state.Windows, &WindowHandle{
@@ -57,18 +55,15 @@ func main() {
 		Content:   "",
 	})
 
-	state.Focus = state.Windows[0]
-	state.Focusindex = 0
-
 	for {
 		//window test
 		termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 		for i, w := range state.Windows {
-			w.drawWindow(i == state.Focusindex)
+			w.drawWindow(i == len(state.Windows)-1)
 		}
 
 		if state.Debug {
-			drawText(0, 0, fmt.Sprintf("Windows: %d, Focus: %d", len(state.Windows), state.Focusindex), termbox.ColorWhite, termbox.ColorBlack)
+			drawText(0, 0, fmt.Sprintf("Windows: %v", state.Windows), termbox.ColorWhite, termbox.ColorBlack)
 		}
 
 		termbox.Flush()
@@ -97,25 +92,23 @@ func main() {
 					Content:   "Hello, Golang!\n;)",
 				}
 
-				state.Focus = newH
-				state.Focusindex = len(state.Windows)
 				state.Windows = append(state.Windows, newH)
 			}
 
 		case termbox.EventMouse:
 			var (
-				toclose = -1
 				tofocus = -1
+				toclose = -1
 			)
 			for i, w := range state.Windows {
 				switch ev.Key {
 				case termbox.MouseLeft:
-					if w.isExitButtonArea(ev.MouseX, ev.MouseY) && !w.isDrag && !state.Dragging && i == state.Focusindex {
-						toclose = i
+					if w.onWindow(ev.MouseX, ev.MouseY) && !state.Dragging {
+						tofocus = i
 					}
 
-					if i != state.Focusindex && w.onWindow(ev.MouseX, ev.MouseY) {
-						tofocus = i
+					if w.isExitButtonArea(ev.MouseX, ev.MouseY) && !w.isDrag && !state.Dragging && i == len(state.Windows)-1 {
+						toclose = i
 					}
 
 					if w.isDrag {
@@ -135,12 +128,13 @@ func main() {
 					state.Dragging = false
 				}
 			}
-			if toclose != -1 {
-				state.closeWindow(toclose)
-			}
 
 			if tofocus != -1 {
 				state.focusWindow(tofocus)
+			}
+
+			if toclose != -1 {
+				state.closeWindow(toclose)
 			}
 		}
 	}

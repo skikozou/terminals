@@ -2,14 +2,12 @@ package main
 
 import (
 	"strings"
-
-	"github.com/nsf/termbox-go"
 )
 
 func (h *WindowHandle) drawWindow(isfocus bool) {
 	f, b := h.Fg, h.Bg
 	if isfocus {
-		f, b = termbox.ColorBlack, termbox.ColorWhite
+		//f, b = termbox.ColorBlack, termbox.ColorWhite
 	}
 	// draw box
 	drawBox(h.X, h.Y+1, h.Width, h.Height, h.Fg, h.Bg)
@@ -50,12 +48,6 @@ func (h *WindowHandle) onWindow(posX, posY int) bool {
 }
 
 func (s *Screen) closeWindow(index int) {
-	if len(s.Windows) != 1 {
-		s.Focus = s.Windows[len(s.Windows)-2]
-	} else {
-		s.Focus = nil
-	}
-	s.Focusindex--
 	ws := s.Windows
 	copy(ws[index:], ws[index+1:])
 	ws[len(ws)-1] = nil
@@ -64,17 +56,21 @@ func (s *Screen) closeWindow(index int) {
 }
 
 func (s *Screen) focusWindow(index int) {
-	s.Focus = s.Windows[index]
-	s.Focusindex = index
+	ws := s.Windows
+	ws = append(ws, ws[index])
+	ws[index] = nil
+	ws = append(ws[:index], ws[index+1:]...)
+	s.Windows = ws
 }
 
-func (s *Screen) focus(index int) {
-
+func (s *Screen) getfocus() *WindowHandle {
+	return s.Windows[0]
 }
 
 // 1 2 3 4 5 want 3
 // 1 2 4 5 3
 
+// 1 2 3 4 5
 // 1 2 3 4 5 3
 // 1 2 |3| 4 5 3
 // 1 2 4 5 3
